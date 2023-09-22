@@ -54,7 +54,8 @@ function vertical_lines(graphe,drawing_area){
 }
 
 function horizontal_lines(graphe,drawing_area){
-    const number_line = (drawing_area.height/20);
+    // const number_line = (drawing_area.height/20);
+    const number_line = (array_tasks_display.length+1);
     var inc_line=space_between_line;
     /* zone du dessin */
     let width_schema_line = ((number_day+1)*space_column)+start_column
@@ -82,7 +83,7 @@ function display_arrow(graphe,drawing_area,end_column_task,inc_line_task){
     graphe.strokeStyle="red";
     graphe.beginPath();
     graphe.lineCap='square';
-    graphe.moveTo(end_column_task-space_column, inc_line_task); /* point de depart */
+    graphe.moveTo(end_column_task-space_column+5, inc_line_task); /* point de depart */
     graphe.lineTo(end_column_task, inc_line_task); /* ligne point final*/
     graphe.stroke(); /* affiche la ligne */
 }
@@ -97,15 +98,17 @@ function draw_task (graphe,drawing_area){
     graphe.globalAlpha = 0.8;
     graphe.fillRect(0, 0,start_column, 50)
     name_db=document.getElementById("file_name_db").value;
+    /* affiche le texte du graph (defini comme nom de la db) */
     if (name_db!="") {
         graphe.beginPath();
         graphe.globalAlpha = 1;
         graphe.fillStyle = "orange";
-        size_font='bold '+String(letter_size+2)+'px serif'
+        size_font='bold '+String(letter_size+10)+'px serif'
         graphe.font = size_font;
         texte=name_db;
         graphe.fillText(texte,20, 30);
     }
+    /* affichage des textes des taches */
     for (let i = 0; i < (array_tasks_display.length); i++) {
         inc_line_task=start_line+((i+1)*space_between_line)
         graphe.beginPath();
@@ -120,19 +123,19 @@ function draw_task (graphe,drawing_area){
         graphe.fillText(texte,start_column_task, inc_line_task);
         /* trace longueur de la tache */
         deb_column_task = (array_tasks_display[i][1]*space_column)+start_column
-        end_column_task=deb_column_task+(array_tasks_display[i][2]*space_column)
+        end_column_task=deb_column_task+(array_tasks_display[i][2]*space_column)-5
         graphe.beginPath();
         graphe.lineCap='square';
         graphe.moveTo(deb_column_task, inc_line_task); /* point de depart */
         graphe.lineTo(end_column_task, inc_line_task); /* ligne point final*/
         if (array_tasks_display[i][6]==1) { /* verifie si "main task" */
             graphe.strokeStyle= '#000000'; // noir
-            graphe.lineWidth= 8;
+            graphe.lineWidth= 7;
         }
         else{
             if (array_tasks_display[i][8]==1) { /* verifie si tache en défaut mettre couleur flashy */
                 graphe.strokeStyle= "red";
-                graphe.lineWidth= 9;
+                graphe.lineWidth= 5;
             } else {
                 graphe.strokeStyle= array_tasks_display[i][9];
                 graphe.lineWidth= 5;
@@ -225,6 +228,27 @@ function draw_liaison_task_down(graphe,drawing_area){
                     }
                 }
                 graphe.strokeStyle= '#FF0000'; //Nuance de rouge
+                graphe.lineWidth= 1;
+                graphe.stroke(); /* affiche la ligne */
+            }
+        }
+        /* verifie si tache principale . Si oui alors liaison avec la tache downstream (plus basse) */
+        if (array_tasks_display[i][6]==1){
+            if (i+1<array_tasks_display.length){ /* verifie si la tache existe et donc inferieure a la longueur de la liste */
+                downstream_task=i+1;
+                deb_column_task_1 = (array_tasks_display[i][1]*space_column);
+                deb_column_task_2 = (array_tasks_display[downstream_task][1]*space_column);
+                pos_line_task_1=start_line+((i+1)*space_between_line);
+                pos_line_task_2=start_line+((downstream_task+1)*space_between_line);
+                //graphe.beginPath();
+                graphe.lineCap='square';
+                graphe.moveTo(deb_column_task_1+start_column, pos_line_task_1); /* trace <-- */
+                graphe.lineTo(deb_column_task_1+start_column-(space_column/4), pos_line_task_1);
+                graphe.moveTo(deb_column_task_1+start_column-(space_column/4), pos_line_task_1); /* trace | */
+                graphe.lineTo(deb_column_task_1+start_column-(space_column/4), pos_line_task_2);
+                graphe.moveTo(deb_column_task_2+start_column-(space_column/4), pos_line_task_2); /* trace --> */
+                graphe.lineTo(deb_column_task_2+start_column, pos_line_task_2);
+                graphe.strokeStyle= '#000000'; //Nuance de rouge
                 graphe.lineWidth= 1;
                 graphe.stroke(); /* affiche la ligne */
             }
@@ -332,7 +356,7 @@ function writing_times (graphe,drawing_area,type_time){
     let aujourdhui = new Date();
     let account_day=0
     let nbr_m_second = 86400000 /* nbr de seconde en 1 journée */
-    /* calcul date de depart en fonctiond de l'increment de déplacement du canvas */
+    /* calcul date de depart en fonction de l'increment de déplacement du canvas */
     if (int_increment>0){
         let start_int=start_project.getTime()
         start_int=start_int+(int_increment*nbr_m_second);
@@ -344,6 +368,7 @@ function writing_times (graphe,drawing_area,type_time){
     date_start=start_project;
     start_day=date_start.getTime()
     /* display month */
+    let memo_year=-1;
     let memo_month=-1;
     let memo_week=-1;
     let interval_month=0;
@@ -361,14 +386,19 @@ function writing_times (graphe,drawing_area,type_time){
         date_start_y = date_start.getFullYear();
         date_start_w = recupere_num_semaine(date_start);
         inter_space = (i*space_column)+start_column
+        /* ecriture du mois */
         if (date_start_m!=memo_month){
             interval_space=interval_month+((inter_space-interval_month)/2)
             if (memo_month!=-1){
                 graphe.beginPath();
                 graphe.globalAlpha = 1;
                 graphe.fillStyle = "black";
-                graphe.font = 'bold 14px serif';
-                texte_m="M"+String(memo_month)
+                graphe.font = "bold "+String(letter_size_month)+"px serif";
+                if (memo_month<12) {
+                    texte_m="M"+String(memo_month)+"  / "+String(date_start_y)
+                }else {
+                    texte_m="M"+String(memo_month)+"  / "+String(date_start_y-1)
+                }
                 graphe.fillText(texte_m,interval_space,10 );
                 /* trace une ligne sur le mois */
                 if (color_month == "#0ec9e6") {
@@ -390,8 +420,10 @@ function writing_times (graphe,drawing_area,type_time){
                 graphe.beginPath();
                 graphe.globalAlpha = 1;
                 graphe.fillStyle = "black";
-                graphe.font = 'bold 11px serif';
-                texte_w="W"+String(memo_week)
+                graphe.font = "bold "+String(letter_size_semaine)+"px serif";
+                let entete_text="W";
+                if (langue==2){entete_text="S" }
+                texte_w=entete_text+String(memo_week)
                 graphe.fillText(texte_w,interval_space,25 );
                 /* trace une ligne sur la semaine */
                 if (color_week == "#0af25f") {
@@ -411,7 +443,7 @@ function writing_times (graphe,drawing_area,type_time){
         graphe.beginPath();
         graphe.globalAlpha = 1;
         graphe.fillStyle = "black";
-        graphe.font = '9px serif';
+        graphe.font = String(letter_size_jour)+"px serif";
         /* verifie si le jour est le jour actuel pour trace de l'axe */
         if (date_start_j_m == aujourdhui.getDate()) {
             if (date_start_m == (aujourdhui.getMonth() +1)) {
@@ -469,7 +501,7 @@ function writing_times (graphe,drawing_area,type_time){
     largeur_graph=inter_space;
     graphe.fillRect(start_column, 30, int, 20);
 }
-
+/* axes qui suivent le curseur dans le canvas */
 function draw_axes(graphe,drawing_area){
     if (affichage_axes){
         drawing_area.style.cursor="crosshair";
@@ -486,17 +518,29 @@ function draw_axes(graphe,drawing_area){
         graphe.beginPath();
  	    graphe.globalAlpha = 0.6;
         graphe.setLineDash([5, 2]); /* ligne discontinu */
-        graphe.moveTo(start_column-50,mouse_y); /* point de part */
+        //graphe.moveTo(start_column,mouse_y); /* point de part */
+        graphe.moveTo(20,mouse_y);
         graphe.lineTo(largeur_graph,mouse_y); /* ligne point final*/
         graphe.strokeStyle= '#black'; //Nuance de bleu
         graphe.lineWidth= 1;
         graphe.stroke(); /* affiche la ligne */
+        /* calcul du numero de la tache en face du curseur */
+        calcul_numero_de_la_tache_a_afficher=0
+        for (let i = 0; i < (array_tasks_display.length); i++) {
+            inc_line_task=start_line+((i+1)*space_between_line)
+            let tolerance= space_between_line/2;
+            if  ((mouse_y<(inc_line_task+tolerance)) && (mouse_y>(inc_line_task-tolerance))) {
+                calcul_numero_de_la_tache_a_afficher=i+1;
+            }
+        }
     }
 }
 
 function listen_mouse_on_canvas(graphe,drawing_area){
+
     if (deplace_canvas){
-        drawing_area.style.cursor="grab";}
+        drawing_area.style.cursor="grab";
+    }
     drawing_area.addEventListener("mousemove", function(e){
         let mousePos=getMousePos(drawing_area,e);
         affichage_axes=true;
@@ -526,20 +570,87 @@ function listen_mouse_on_canvas(graphe,drawing_area){
         deplace_canvas=false;
         memo_increment_left=int_increment;
         increment_left_canvas=0;
+        document.getElementsByTagName("body")[0].style.overflow="auto"; /* debloque le croll */
      }, false);
     drawing_area.addEventListener("mousedown", function(e){
-
-        deplace_canvas=true;
-        let mousePos=getMousePos(drawing_area,e);
-        memo_mouse_canvas_x=mousePos.x
-        memo_mouse_canvas_y=mousePos.y
+        if (e.button == 0) { /* click left */
+            deplace_canvas=true;
+            double_click=false;
+            let mousePos=getMousePos(drawing_area,e);
+            memo_mouse_canvas_x=mousePos.x;
+            memo_mouse_canvas_y=mousePos.y;
+        }
       }, false);
+    drawing_area.addEventListener("dblclick", function (e) {
+        if (double_click==false) {
+            let iframe_page2=document.getElementById("entete_iframe");
+            iframe_page2.removeAttribute("hidden");
+            page2_left = iframe_page2.offsetLeft;
+            page2_top  = iframe_page2.offsetTop;
+            iframe_hidden = document.getElementById("page2");
+            iframe_hidden.removeAttribute("hidden");
+            iframe_hidden=false;
+            let element_a_modifier=document.getElementById("display_datas");
+            element_a_modifier.innerHTML=array_langue[8][langue];
+            numero_de_la_tache_a_afficher=(calcul_numero_de_la_tache_a_afficher+increment_top_canvas)
+            affiche_une_tache_specifique(numero_de_la_tache_a_afficher);
+            double_click=true;
+        }
+    }, false);
     drawing_area.addEventListener("mouseup", function(e){
         deplace_canvas=false;
         memo_increment_left=int_increment;
         increment_left_canvas=0;
      }, false);
-
+    drawing_area.addEventListener("DOMMouseScroll", function(e){ /* pour Firefox */
+        window.scroll(0, 0); /* remontage scroll en haut */
+        document.getElementsByTagName("body")[0].style.overflow="hidden"; /* bloque le croll */
+        delta= Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))
+    }, false);
+    drawing_area.addEventListener("mousewheel", function(e){ /* pour chrome, safari, opera */
+        document.getElementsByTagName("body")[0].style.overflow="hidden"; /* bloque le croll */
+        delta= Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)))
+    }, false);
+    if (delta>0) {
+        delta=0;
+        document.getElementById("g_rows").value=space_between_line+1;
+        document.getElementById("g_columns").value=space_column+1;
+        incp_letter_size+=increment_pour_size_letter;
+        incm_letter_size=0;
+        if (incp_letter_size>1){
+            incp_letter_size=0
+            /* modification taille des taches */
+            let int=Number(letter_size)+1
+            document.getElementById("l_size").value=String(int);
+            /* modification taille des month + semaine + jours */
+            letter_size_month+=1;
+            letter_size_semaine+=1
+            letter_size_jour+=1
+            /* modification start_column */
+            int=Number(start_column)+5;
+            document.getElementById("w_task").value=String(int);
+        }
+    } else{ if (delta<0){
+            delta=0;
+            document.getElementById("g_rows").value=space_between_line-1;
+            document.getElementById("g_columns").value=space_column-1;
+            incm_letter_size+=increment_pour_size_letter;
+            incp_letter_size=0;
+            if (incm_letter_size>1){
+                incm_letter_size=0
+                /* modification taille des taches */
+                let int=Number(letter_size)-1 // increment seulement de l'entier
+                document.getElementById("l_size").value=String(int);
+                /* modification taille des month + semaine + jours */
+                letter_size_month-=1;
+                letter_size_semaine-=1
+                letter_size_jour-=1
+                /* modification start_column */
+                int=Number(start_column)-5;
+                document.getElementById("w_task").value=String(int);
+            }
+        }
+    }
 }
 //Get Mouse Position
 function getMousePos(drawing_area, e) {

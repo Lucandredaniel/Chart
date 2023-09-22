@@ -12,9 +12,55 @@ function detecte_browser(){
  }
 }
 
+function inhibe_identity(){
+    document.getElementById('essai_file').style.display = "none";
+    document.getElementById('outputfile').style.display = "none";
+    document.getElementById('inputfile').style.display = "none";
+    document.getElementById('message1').style.display = "none";
+    document.getElementById('message2').style.display = "none";
+}
+
 function affiche_texte_mineure(texte_message){
     prompt(texte_message);
 }
+
+function CustomConfirm_1(message,title){
+    // document.body.innerHTML = document.body.innerHTML + '<div id="dialogoverlay"></div><div id="dialogbox" class="slit-in-vertical"><div><div id="dialogboxhead"></div><div id="dialogboxbody"></div><div id="dialogboxfoot"></div></div></div>';
+    let dialogoverlay = document.getElementById('dialogoverlay');
+    let dialogbox = document.getElementById('dialogbox');
+    let winH = window.innerHeight;
+    //dialogoverlay.style.height = winH+"px";
+    dialogbox.style.top = "200px";
+    //dialogoverlay.style.display = "block";
+    dialogbox.style.display = "block";
+    document.getElementById('dialogboxhead').style.display = 'block';
+    if(typeof title === 'undefined') {
+      document.getElementById('dialogboxhead').style.display = 'none';
+    } else {
+      document.getElementById('dialogboxhead').innerHTML = '<i class="fa fa-exclamation-circle" aria-hidden="true"></i> '+ title;
+    }
+    document.getElementById('dialogboxbody').innerHTML = message;
+    document.getElementById('dialogboxfoot').innerHTML = '<button class="pure-material-button-ok active" onclick="read_datas()">OK</button> <button class="pure-material-button-Nok active" onclick="Bpok()">NOK</button>';
+}
+function CustomConfirm(message,title){
+    // document.body.innerHTML = document.body.innerHTML + '<div id="dialogoverlay"></div><div id="dialogbox" class="slit-in-vertical"><div><div id="dialogboxhead"></div><div id="dialogboxbody"></div><div id="dialogboxfoot"></div></div></div>';
+    let dialogoverlay = document.getElementById('dialogoverlay');
+    let dialogbox = document.getElementById('dialogbox');
+    let winH = window.innerHeight;
+    //dialogoverlay.style.height = winH+"px";
+    dialogbox.style.top = "200px";
+    //dialogoverlay.style.display = "block";
+    dialogbox.style.display = "block";
+    document.getElementById('dialogboxhead').style.display = 'block';
+    if(typeof title === 'undefined') {
+      document.getElementById('dialogboxhead').style.display = 'none';
+    } else {
+      document.getElementById('dialogboxhead').innerHTML = '<i class="fa fa-exclamation-circle" aria-hidden="true"></i> '+ title;
+    }
+    document.getElementById('dialogboxbody').innerHTML = message;
+    document.getElementById('dialogboxfoot').innerHTML = '<button class="pure-material-button-ok active" onclick="valid_clear_project()">OK</button> <button class="pure-material-button-Nok active" onclick="Bpok()">NOK</button>';
+}
+
 
 function CustomAlert(message,title){
     // document.body.innerHTML = document.body.innerHTML + '<div id="dialogoverlay"></div><div id="dialogbox" class="slit-in-vertical"><div><div id="dialogboxhead"></div><div id="dialogboxbody"></div><div id="dialogboxfoot"></div></div></div>';
@@ -32,6 +78,31 @@ function CustomAlert(message,title){
       document.getElementById('dialogboxhead').innerHTML = '<i class="fa fa-exclamation-circle" aria-hidden="true"></i> '+ title;
     }
     document.getElementById('dialogboxbody').innerHTML = message;
+    document.getElementById('dialogboxfoot').innerHTML = '<button class="pure-material-button-contained active" onclick="Bpok()">OK</button>';
+}
+
+function Helpmessage(tableau,title){
+    // document.body.innerHTML = document.body.innerHTML + '<div id="dialogoverlay"></div><div id="dialogbox" class="slit-in-vertical"><div><div id="dialogboxhead"></div><div id="dialogboxbody"></div><div id="dialogboxfoot"></div></div></div>';
+    let dialogoverlay = document.getElementById('dialogoverlay');
+    let dialogbox = document.getElementById('dialogbox');
+    let winH = window.innerHeight;
+    //dialogoverlay.style.height = winH+"px";
+    dialogbox.style.top = "200px";
+    dialogbox.style.height="200px"
+    dialogbox.style.width="1000px"
+    //dialogoverlay.style.display = "block";
+    dialogbox.style.display = "block";
+    document.getElementById('dialogboxhead').style.display = 'block';
+    if(typeof title === 'undefined') {
+      document.getElementById('dialogboxhead').style.display = 'none';
+    } else {
+      document.getElementById('dialogboxhead').innerHTML = '<i class="fa fa-exclamation-circle" aria-hidden="true"></i> '+ title;
+    }
+    let texte_provisoire="";
+    for (let j = 0; j <tableau.length-1; j++){
+            texte_provisoire += '<DIV>'+tableau[j][langue-1]+'</DIV>';
+    }
+    document.getElementById('dialogboxbody').innerHTML = texte_provisoire;
     document.getElementById('dialogboxfoot').innerHTML = '<button class="pure-material-button-contained active" onclick="Bpok()">OK</button>';
 }
 
@@ -63,8 +134,8 @@ function affiche_progression(){
 
 function affiche_donnes_diverses() { /* fonction qui affiche des donnes diverses pour debug */
     let loc=location.origin
-    let texte_lla="Freelance EXPERTISE :      PYTHON, HTML, CSS, Javascript, PHP, RobotFrameWork, IndexedDB  \\ développement et maintenance soft"
-    CustomAlert(texte_lla,"V1.0 - Contact : 2l.informatique.automatisme@gmail.com")
+    let texte_lla="Freelance EXPERTISE :      Python, HTML, CSS, Javascript, PHP, RobotFrameWork, IndexedDB  \\ développement et maintenance soft"
+    CustomAlert(texte_lla,"V1.1 - Contact : luc.lassalle@sfr.fr")
     //alert(array_tasks_display_save);
 }
 
