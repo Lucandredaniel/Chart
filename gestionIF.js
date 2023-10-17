@@ -129,6 +129,10 @@ function lecture_datas(numero_tache){ /* lecture de toutes les donnees tant que 
         recopy_array_2D();
         check_datas_upstream();
         check_datas_downstream();
+        check_datas_upstream(); /* 2eme obligatoire, pour recalculer en fct des modifications effectuées par Check_datas_downstream */
+        check_datas_downstream();
+        calcul_tache_principale();
+        calcul_longueur_projet();
     }
 }
 function read_one_task(int_indice){ /* lecture donnees dans l iframe */
@@ -391,7 +395,7 @@ function reafecte_one_donnees(indice){
     let in_indice=indice+1;
     affect_donnees_display(in_indice);
 }
-
+/* ========= ecriture des donnees d'une tache sur Iframe =========*/
 function affect_donnees_display(inc) {
     idvar="name_task"+String(inc);
     variable1 = document.getElementById("page2").contentWindow.document.getElementById(idvar)
@@ -460,7 +464,8 @@ function rajout_one_task() {
         /* initialisation de la tache */
         if (array_tasks.length>1){
             array_tasks[array_tasks.length-2][5]=array_tasks.length;
-            array_tasks[array_tasks.length-1][1]=array_tasks[array_tasks.length-2][1]+array_tasks[array_tasks.length-2][2]+array_tasks[array_tasks.length-2][3];
+            let resultat_duree_tache=calcul_duree_tache(array_tasks[array_tasks.length-2][1],array_tasks[array_tasks.length-2][2],array_tasks.length-2);
+            array_tasks[array_tasks.length-1][1]=array_tasks[array_tasks.length-2][1]+resultat_duree_tache+array_tasks[array_tasks.length-2][3];
         }
         let in_indice=array_tasks.length;
         display_one_task(in_indice);
@@ -633,7 +638,7 @@ function affiche_une_tache_specifique(numero_de_la_tache_a_afficher){
     element_a_bouger.style.position="absolute";
     element_a_bouger.style.left=String(page2_left) + "px";
     element_a_bouger.style.top=String(page2_top+40) + "px";
-    element_a_bouger.style.height=String(80) + "px";
+    element_a_bouger.style.height=String(100) + "px";
     display_one_task(numero_de_la_tache_a_afficher);
     affect_donnees_display(numero_de_la_tache_a_afficher)
     affiche_une_seule_tache=true;
@@ -649,9 +654,9 @@ function getMousePos_iframe(elmnt, e) {
         y: e.clientY-rect.top,
     };
 }
+/*
 function listen_mouse_on_page2(){
      element_a_ecouter  = window.parent.document.getElementById("page2");
-     //element_a_ecouter  = document.getElementById("page2");
      elmnt =element_a_ecouter.contentWindow.document.getElementById("entete_page2");
      elmnt.addEventListener("mousemove", function(e){
         elmnt.style.cursor="grab";
@@ -690,6 +695,7 @@ function listen_mouse_on_page2(){
         }
       }, false);
 }
+*/
 function affichage_de_iframe(){
     if (!iframe_hidden){
         let iframe_hidden_element = document.getElementById("page2");
@@ -697,7 +703,6 @@ function affichage_de_iframe(){
         iframe_hidden_element.style.left=String(page2_left) + "px";
         iframe_hidden_element.style.top=String(page2_top+40) + "px";
         iframe_hidden_element.removeAttribute("hidden");
-        deplace_iframe=false;
     }
 }
 function listen_mouse_on_page1(){
@@ -717,29 +722,21 @@ function listen_mouse_on_page1(){
             elmnt.style.position="absolute";
             elmnt.style.left=String(parseInt(page2_left))+"px";
             elmnt.style.top=String(parseInt(page2_top))+"px";
-            message(window.scrollY,page2_top);
+            affichage_de_iframe();
         }else {inc=0}
      }, false);
     elmnt.addEventListener("mouseup", function(a){
-         affichage_de_iframe();
          deplace_iframe=false;
      }, false);
      elmnt.addEventListener("mouseleave", function(b){
-        affichage_de_iframe();
         deplace_iframe=false;
      }, false);
     elmnt.addEventListener("mousedown", function(c){
-        /* cache l'Iframe */
-        //let iframe_hidden_element = document.getElementById("page2");
-        /* iframe_hidden_element.setAttribute("hidden","hidden"); */
-        //iframe_hidden_element.style.height=String(0) + "px";
-        //iframe_hidden_element.style.width=String(0) + "px";
         if (!deplace_iframe){
             let mousePos=getMousePos_iframe(elmnt,c);
             memo_mouse_x=mousePos.x
             memo_mouse_y=mousePos.y
             deplace_iframe=true;
         }
-
       }, false);
 }
